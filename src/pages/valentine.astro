@@ -1,0 +1,303 @@
+---
+---
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap"
+      rel="stylesheet"
+    />
+    <title>BIRYANI KHILAYEGI</title>
+  </head>
+  <body>
+    <div
+      style="position: absolute; top: 20px; left: 20px; z-index: 1000;"
+    >
+      <button
+        class="home-btn"
+        onclick="window.sessionStorage.setItem('skipHeartIntro','1'); window.location.href='/'"
+      >
+        ← Home
+      </button>
+    </div>
+
+    <div class="question-container container">
+      <img src="src/assets/2.gif" alt="Question GIF" class="local-gif" />
+      <h2 class="question">Will You Be My Valentine?</h2>
+      <div class="button-container">
+        <button class="yes-btn btn js-yes-btn">Yes</button>
+        <button class="no-btn btn js-no-btn">No</button>
+      </div>
+    </div>
+
+    <div class="result-container container">
+      <img src="src/assets/1.gif" alt="GIF" class="result-gif" />
+      <h2>heheh pata hee tha😍!</h2>
+    </div>
+
+    <div class="cssload-main">
+      <div class="cssload-heart">
+        <span class="cssload-heartL"></span>
+        <span class="cssload-heartR"></span>
+        <span class="cssload-square"></span>
+      </div>
+      <div class="cssload-shadow"></div>
+    </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const questionContainer = document.querySelector('.question-container')
+        const resultContainer = document.querySelector('.result-container')
+        const heartLoader = document.querySelector('.cssload-main')
+        const yesBtn = document.querySelector('.yes-btn')
+        const noBtn = document.querySelector('.no-btn')
+
+        noBtn.addEventListener('mouseover', () => {
+          const containerRect = questionContainer.getBoundingClientRect()
+          const btnRect = noBtn.getBoundingClientRect()
+
+          const maxX = containerRect.width - btnRect.width
+          const maxY = containerRect.height - btnRect.height
+
+          const newX = Math.floor(Math.random() * Math.max(maxX, 0))
+          const newY = Math.floor(Math.random() * Math.max(maxY, 0))
+
+          noBtn.style.position = 'absolute'
+          noBtn.style.left = `${newX}px`
+          noBtn.style.top = `${newY}px`
+        })
+
+        yesBtn.addEventListener('click', () => {
+          questionContainer.style.display = 'none'
+          heartLoader.style.display = 'inherit'
+
+          setTimeout(() => {
+            heartLoader.style.display = 'none'
+            resultContainer.style.display = 'inherit'
+
+            setTimeout(() => {
+              document.body.style.transition = 'opacity 1s ease-out'
+              document.body.style.opacity = '0'
+
+              setTimeout(() => {
+                window.sessionStorage.setItem('skipHeartIntro', '1')
+                window.location.href = '/letter'
+              }, 1000)
+            }, 3000)
+          }, 3000)
+        })
+      })
+    </script>
+
+    <style>
+      * {
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+      }
+      body {
+        display: grid;
+        justify-content: center;
+        align-items: center;
+        background-color: #ffe6e9;
+        font-family: "Quicksand", sans-serif;
+        min-height: 100vh;
+        transition: opacity 1s ease-out;
+      }
+      .home-btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: 2px solid white;
+        border-radius: 50px;
+        padding: 10px 20px;
+        color: white;
+        cursor: pointer;
+        font-family: inherit;
+        backdrop-filter: blur(10px);
+      }
+      .container {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        transition: 0.2s;
+      }
+      .question-container {
+        width: 100%;
+        max-width: 500px;
+      }
+      .local-gif {
+        width: 100%;
+        max-width: 300px;
+        border-radius: 10px;
+        display: block;
+        margin: 0 auto 2rem auto;
+        pointer-events: none;
+      }
+      .question {
+        font-size: 3rem;
+        margin-bottom: 2rem;
+        text-align: center;
+        color: #ff6b81;
+        font-weight: 600;
+      }
+      .button-container {
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        margin: 0 auto;
+        width: fit-content;
+      }
+      .btn {
+        position: relative;
+        border: none;
+        border-radius: 50px;
+        padding: 12px 25px;
+        font-family: "Quicksand", sans-serif;
+        font-size: 18px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background-color: #ff6b81;
+        color: white;
+        transform: scale(1.05);
+        box-shadow: 0px 4px 15px rgba(255, 107, 129, 0.5);
+        min-width: 100px;
+        font-weight: 500;
+      }
+      .btn:hover {
+        background-color: #ffa4b1;
+        transform: scale(1.1);
+        box-shadow: 0px 6px 20px rgba(255, 107, 129, 0.7);
+        text-shadow: 1px 1px 5px rgba(255, 182, 193, 0.8);
+      }
+      .yes-btn,
+      .no-btn {
+        position: relative;
+        margin: 0 10px;
+      }
+      .result-container {
+        display: none;
+        width: 100%;
+        max-width: 500px;
+      }
+      .result-gif {
+        border-radius: 10px;
+        margin: 0 auto 2rem auto;
+        display: block;
+        max-width: 300px;
+        width: 100%;
+        height: auto;
+        box-shadow: 0 4px 15px rgba(255, 107, 129, 0.3);
+      }
+      .result-container h2 {
+        font-size: 2.5rem;
+        text-align: center;
+        margin: 0 auto;
+        color: #ff6b81;
+        font-weight: 600;
+      }
+      .cssload-main {
+        display: none;
+        position: absolute;
+        content: "";
+        top: 17%;
+        left: 50%;
+        margin: 200px auto 0 auto;
+        transform: translate(-100%, -50%);
+      }
+      .cssload-main * {
+        font-size: 62px;
+      }
+      .cssload-heart {
+        animation: cssload-heart 2.88s cubic-bezier(0.75, 0, 0.5, 1) infinite
+          normal;
+        top: 50%;
+        content: "";
+        left: 50%;
+        position: absolute;
+      }
+      .cssload-heartL,
+      .cssload-heartR,
+      .cssload-square {
+        width: 1em;
+        height: 1em;
+        border: 1px solid #ff0000;
+        background-color: #ff0000;
+        content: "";
+        position: absolute;
+        display: block;
+      }
+      .cssload-heartL {
+        border-radius: 100%;
+        animation: cssload-heartL 2.88s cubic-bezier(0.75, 0, 0.5, 1) infinite
+          normal;
+        transform: translate(-28px, -27px);
+      }
+      .cssload-heartR {
+        border-radius: 100%;
+        transform: translate(28px, -27px);
+        animation: cssload-heartR 2.88s cubic-bezier(0.75, 0, 0.5, 1) infinite
+          normal;
+      }
+      .cssload-square {
+        position: relative;
+        transform: scale(1) rotate(-45deg);
+        animation: cssload-square 2.88s cubic-bezier(0.75, 0, 0.5, 1) infinite
+          normal;
+      }
+      .cssload-shadow {
+        top: 97px;
+        left: 50%;
+        content: "";
+        position: relative;
+        display: block;
+        bottom: -0.5em;
+        width: 1em;
+        height: 0.24em;
+        background-color: rgb(215, 215, 215);
+        border: 1px solid rgb(215, 215, 215);
+        border-radius: 50%;
+        animation: cssload-shadow 2.88s cubic-bezier(0.75, 0, 0.5, 1)
+          infinite normal;
+      }
+
+      @keyframes cssload-square {
+        50% {
+          border-radius: 100%;
+          transform: scale(0.5) rotate(-45deg);
+        }
+        100% {
+          transform: scale(1) rotate(-45deg);
+        }
+      }
+      @keyframes cssload-heart {
+        50% {
+          transform: rotate(360deg);
+        }
+        100% {
+          transform: rotate(720deg);
+        }
+      }
+      @keyframes cssload-heartL {
+        60% {
+          transform: scale(0.4);
+        }
+      }
+      @keyframes cssload-heartR {
+        40% {
+          transform: scale(0.4);
+        }
+      }
+      @keyframes cssload-shadow {
+        50% {
+          transform: scale(0.5);
+          border-color: rgb(228, 228, 228);
+        }
+      }
+    </style>
+  </body>
+</html>

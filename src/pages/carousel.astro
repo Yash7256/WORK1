@@ -1,0 +1,364 @@
+---
+const frameModules = import.meta.glob('../assets/frames/*.jpg', {
+  eager: true,
+  import: 'default',
+})
+
+const frames = Object.entries(frameModules)
+  .map(([path, url]) => {
+    const match = path.match(/\/(\d+)\.jpg$/)
+    const frameNumber = match ? Number(match[1]) : 0
+    const resolvedUrl =
+      typeof url === 'string' ? url : (url as { src: string }).src
+    return { path, url: resolvedUrl, frameNumber }
+  })
+  .filter(({ frameNumber }) => frameNumber > 0)
+  .sort((a, b) => a.frameNumber - b.frameNumber)
+
+const frameVars = frames
+  .map((frame, i) => `  --image-${i + 1}: url('${frame.url}');`)
+  .join('\n')
+
+// Extended to 5 columns with 6 items each (30 frames total visible at once)
+const columns = [
+  // Column 1 (leftmost)
+  [
+    { height: '6rem', delay: '80ms' },
+    { height: '5rem', delay: '170ms' },
+    { height: '7rem', delay: '110ms' },
+    { height: '4rem', delay: '200ms' },
+    { height: '5rem', delay: '260ms' },
+    { height: '6rem', delay: '320ms' },
+  ],
+  // Column 2
+  [
+    { height: '5rem', delay: '100ms' },
+    { height: '6rem', delay: '200ms' },
+    { height: '4rem', delay: '120ms' },
+    { height: '4rem', delay: '150ms' },
+    { height: '6rem', delay: '274ms' },
+    { height: '3rem', delay: '350ms' },
+  ],
+  // Column 3 (center)
+  [
+    { height: '7rem', delay: '180ms' },
+    { height: '5rem', delay: '220ms' },
+    { height: '6rem', delay: '140ms' },
+    { height: '4rem', delay: '150ms' },
+    { height: '9rem', delay: '274ms' },
+    { height: '3rem', delay: '350ms' },
+  ],
+  // Column 4
+  [
+    { height: '6rem', delay: '160ms' },
+    { height: '4rem', delay: '240ms' },
+    { height: '5rem', delay: '190ms' },
+    { height: '6rem', delay: '280ms' },
+    { height: '5rem', delay: '95ms' },
+    { height: '3rem', delay: '350ms' },
+  ],
+  // Column 5 (rightmost)
+  [
+    { height: '5rem', delay: '130ms' },
+    { height: '7rem', delay: '210ms' },
+    { height: '4rem', delay: '175ms' },
+    { height: '6rem', delay: '290ms' },
+    { height: '5rem', delay: '250ms' },
+    { height: '4rem', delay: '330ms' },
+  ],
+]
+
+// Generate keyframes - cycle through images 1 to 67
+const totalFrames = frames.length
+const keyframeSteps = []
+
+if (totalFrames > 0) {
+  for (let i = 0; i < totalFrames; i++) {
+    const segmentSize = 100 / totalFrames
+    const segmentStart = (i * segmentSize).toFixed(2)
+    const segmentHold = ((i * segmentSize) + (segmentSize * 0.9)).toFixed(2) // Hold for 90% of segment
+    
+    // Start of segment - show image
+    keyframeSteps.push(`  ${segmentStart}% {`)
+    keyframeSteps.push(`    background-image: var(--image-${i + 1});`)
+    keyframeSteps.push(`  }`)
+    
+    // Hold the image
+    keyframeSteps.push(`  ${segmentHold}% {`)
+    keyframeSteps.push(`    background-image: var(--image-${i + 1});`)
+    keyframeSteps.push(`  }`)
+  }
+  
+  // Loop back to first image
+  keyframeSteps.push(`  100% {`)
+  keyframeSteps.push(`    background-image: var(--image-1);`)
+  keyframeSteps.push(`  }`)
+}
+
+const keyframes = keyframeSteps.join('\n')
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Carousel Grid</title>
+  </head>
+  <body>
+    <div class="container">
+      {columns.map((column, colIndex) => (
+        <div class={`column column-${colIndex + 1}`}>
+          {column.map((item, itemIndex) => (
+            <div class={`item item-${itemIndex + 1}`}></div>
+          ))}
+        </div>
+      ))}
+    </div>
+
+    <style>
+      @font-face {
+        font-family: "Roboto";
+        src: url("https://assets.codepen.io/907368/Roboto-Bold.ttf");
+        font-weight: 700;
+      }
+
+      @font-face {
+        font-family: "Roboto";
+        src: url("https://assets.codepen.io/907368/Roboto-Regular.ttf");
+        font-weight: 500;
+      }
+
+      @font-face {
+        font-family: "Roboto";
+        src: url("https://assets.codepen.io/907368/Roboto-Light.ttf");
+        font-weight: 300;
+      }
+
+      body,
+      html {
+        width: 100%;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-color: #0c1016;
+        font-size: 20px;
+        margin: 0;
+        padding: 0;
+        color: #ffffff;
+        font-family: "Roboto", sans-serif;
+        overflow-x: hidden;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      .container {
+        display: flex;
+        flex-direction: row;
+        width: 90%;
+        max-width: 35rem;
+        gap: 0.5rem;
+      }
+
+      .column {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+      }
+
+      .item {
+        width: 100%;
+        border-radius: 0.5rem;
+        background-position: center center;
+        background-attachment: fixed;
+        background-repeat: no-repeat;
+        background-size: contain;
+        animation: background 120s infinite ease-in-out;
+      }
+
+      /* Column 1 items */
+      .column-1 .item-1 {
+        height: 6rem;
+        animation-delay: 80ms;
+      }
+
+      .column-1 .item-2 {
+        height: 5rem;
+        animation-delay: 170ms;
+      }
+
+      .column-1 .item-3 {
+        height: 7rem;
+        animation-delay: 110ms;
+      }
+
+      .column-1 .item-4 {
+        height: 4rem;
+        animation-delay: 200ms;
+      }
+
+      .column-1 .item-5 {
+        height: 5rem;
+        animation-delay: 260ms;
+      }
+
+      .column-1 .item-6 {
+        height: 6rem;
+        animation-delay: 320ms;
+      }
+
+      /* Column 2 items */
+      .column-2 .item-1 {
+        height: 5rem;
+        animation-delay: 100ms;
+      }
+
+      .column-2 .item-2 {
+        height: 6rem;
+        animation-delay: 200ms;
+      }
+
+      .column-2 .item-3 {
+        height: 4rem;
+        animation-delay: 120ms;
+      }
+
+      .column-2 .item-4 {
+        height: 4rem;
+        animation-delay: 150ms;
+      }
+
+      .column-2 .item-5 {
+        height: 6rem;
+        animation-delay: 274ms;
+      }
+
+      .column-2 .item-6 {
+        height: 3rem;
+        animation-delay: 350ms;
+      }
+
+      /* Column 3 items */
+      .column-3 .item-1 {
+        height: 7rem;
+        animation-delay: 180ms;
+      }
+
+      .column-3 .item-2 {
+        height: 5rem;
+        animation-delay: 220ms;
+      }
+
+      .column-3 .item-3 {
+        height: 6rem;
+        animation-delay: 140ms;
+      }
+
+      .column-3 .item-4 {
+        height: 4rem;
+        animation-delay: 150ms;
+      }
+
+      .column-3 .item-5 {
+        height: 9rem;
+        animation-delay: 274ms;
+      }
+
+      .column-3 .item-6 {
+        height: 3rem;
+        animation-delay: 350ms;
+      }
+
+      /* Column 4 items */
+      .column-4 .item-1 {
+        height: 6rem;
+        animation-delay: 160ms;
+      }
+
+      .column-4 .item-2 {
+        height: 4rem;
+        animation-delay: 240ms;
+      }
+
+      .column-4 .item-3 {
+        height: 5rem;
+        animation-delay: 190ms;
+      }
+
+      .column-4 .item-4 {
+        height: 6rem;
+        animation-delay: 280ms;
+      }
+
+      .column-4 .item-5 {
+        height: 5rem;
+        animation-delay: 95ms;
+      }
+
+      .column-4 .item-6 {
+        height: 3rem;
+        animation-delay: 350ms;
+      }
+
+      /* Column 5 items */
+      .column-5 .item-1 {
+        height: 5rem;
+        animation-delay: 130ms;
+      }
+
+      .column-5 .item-2 {
+        height: 7rem;
+        animation-delay: 210ms;
+      }
+
+      .column-5 .item-3 {
+        height: 4rem;
+        animation-delay: 175ms;
+      }
+
+      .column-5 .item-4 {
+        height: 6rem;
+        animation-delay: 290ms;
+      }
+
+      .column-5 .item-5 {
+        height: 5rem;
+        animation-delay: 250ms;
+      }
+
+      .column-5 .item-6 {
+        height: 4rem;
+        animation-delay: 330ms;
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          max-width: 28rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .container {
+          max-width: 22rem;
+        }
+      }
+    </style>
+    
+    <style set:html={`
+      :root {
+${frameVars}
+      }
+
+      @keyframes background {
+${keyframes}
+      }
+    `} />
+  </body>
+</html>
