@@ -5,9 +5,12 @@ import path, { dirname } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+const site =
+  process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined
+
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://public.wodniack.dev',
+  ...(site ? { site } : {}),
 
   scopedStyleStrategy: 'class',
 
